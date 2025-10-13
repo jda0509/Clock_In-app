@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AttendanceController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,22 +24,23 @@ use App\Http\Controllers\LoginController;
 Route::get('/login', [LoginController::class, 'index']);
 Route::post('/login', [LoginController::class, 'login'])->name('staff.login');
 Route::get('/register', [LoginController::class, 'create']);
-//Route::post('/register', [LoginController::class, 'register'])->name('staff.register');
+Route::post('/register', [LoginController::class, 'register'])->name('staff.register');
 
 Route::middleware(['auth:staff', 'verified'])->group(function(){
     Route::get('/attendance', [StaffController::class, 'index'])->name('staff.attendance');
 });
 
-
 Route::post('/register', [LoginController::class, 'register'])->name('register');
 Route::get('/email/verify', function() {
-    return view('auth.verify-notice');
-})->middleware('auth')->name('verification.notice');
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    return view('auth.verify-email');
+})->name('verification.notice');
+Route::post('/email/verification-notification', [LoginController::class, 'send'])
+    ->middleware(['auth:staff', 'throttle:6,1'])
+    ->name('verification.send');
+Route::get('/email/verify/{id}/{hash}',function (EmailVerificationRequest $request){
     $request->fulfill();
     return redirect('/attendance');
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
+})->middleware(['auth:staff', 'signed'])->name('verification.verify');
 
 //admin用
 Route::get('/admin/login', [LoginController::class, 'adminIndex']);
@@ -57,4 +62,3 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function (){
     Route::post('attendance/export', [AttendanceController::class, 'exportCsv'])->name('admin.attendance.export');
 });
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -40,11 +40,11 @@
                     @enderror
                 </div>
             </div>
-            <div class="login-form__password-confirmation">
+            <div class="login-form__password_confirmation">
                 <div class="password__label">確認用パスワード</div>
-                <input class="password-confirmation" type="password" name="password-confirmation" value="" />
+                <input class="password_confirmation" type="password" name="password_confirmation" value="" />
                 <div class="error">
-                    @error('password-confirmation')
+                    @error('password_confirmation')
                     {{ $message }}
                     @enderror
                 </div>

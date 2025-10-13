@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -30,7 +31,12 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::registerView(function() {
-            return view('auth.register');
+            if(Auth::guard('staff')->check()){
+                return '/attendance';
+            } elseif (Auth::guard('admin')->check()){
+                return '/admin/dashboard';
+            }
+            return '/login';
         });
         Fortify::loginView(function(){
             return view('auth.login');

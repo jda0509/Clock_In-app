@@ -69,7 +69,8 @@ class AttendanceController extends Controller
         return view('attendance.index', compact('attendances'));
     }
 
-    //public function dailyReport(Request $request)
+    /*
+    public function dailyReport(Request $request)
     {
         $date = $request->input('date', today()->toDateString());
 
@@ -80,7 +81,7 @@ class AttendanceController extends Controller
         return view('admin.attendance.daily', compact('attendances', 'date'));
     }
 
-    //public function monthlyReport(Request $request)
+    public function monthlyReport(Request $request)
     {
         $month = $request->input('month', now()->format('Y-m'));
 
@@ -92,6 +93,7 @@ class AttendanceController extends Controller
 
         return view('staff.attendance.monthly', compact('attendances', 'month'));
     }
+    */
 
     public function exportCsv()
     {

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Models\Staff;
+use App\Models\Staff;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
@@ -25,24 +25,12 @@ class LoginController extends Controller
         return view('register');
     }
 
-    public function store(RegisterRequest $request)
-    {
-        $staffData = $request->only(['name','email','password']);
-        $staffData['password'] = bcrypt($staffData['password']);
-
-        $staff = Staff::create($staffData);
-
-        $staff->sendEmailVerificationNotification();
-
-        return redirect()->route('staff.verification.notice');
-    }
-
     public function login(LoginRequest $request)
     {
         $credentials = $request->only('email', 'password');
 
         if (Auth::guard('admin')->attempt($credentials)) {
-            return redirect()->route('admin.attendance');
+            return redirect()->intended(RouteServiceProvider::ADMIN_HOME);
         }
 
         $staff = Staff::where('email', $credentials['email'])->first();
@@ -60,7 +48,7 @@ class LoginController extends Controller
 
         if (Auth::guard('staff')->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('staff.attendance');
+            return redirect()->intended(RouteServiceProvider::STAFF_HOME);
         }
 
         return back()->withErrors([
@@ -71,18 +59,22 @@ class LoginController extends Controller
     public function register(RegisterRequest $request)
     {
         $staffData = $request->only(['name', 'email', 'password']);
-        $staffData['password'] = bcrypt($staffData['password']);
+        $staffData['password'] = \bcrypt($staffData['password']);
 
-        $staff = Staff::create([
-            'name' => ['name'],
-            'email' => ['email'],
-            'password' => bcrypt['password'],
-        ]);
+        $staff = Staff::create($staffData);
+
+        Auth::guard('staff')->login($staff);
 
         $staff->sendEmailVerificationNotification();
 
         return redirect()->route('verification.notice')
             ->with('status', '確認メールを送信しました。受信箱を確認してください。');
+    }
+
+    public function send(Request $request)
+    {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('status', '確認メールを再送しました。');
     }
 
 
