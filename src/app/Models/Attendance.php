@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
+use App\Models\WorkBreak;
 
 class Attendance extends Model
 {
@@ -20,14 +22,20 @@ class Attendance extends Model
         'total_work_minutes',
     ];
 
+    protected $casts = [
+        'work_date' => 'date',
+        'start_work' => 'datetime',
+        'end_work' => 'datetime',
+    ];
+
     public function staff()
     {
         return $this->belongsTo(Staff::class);
     }
 
-    public function work_break()
+    public function work_breaks()
     {
-        return $this->hasOne(WorkBreak::class);
+        return $this->hasMany(WorkBreak::class);
     }
 
     public function applications()

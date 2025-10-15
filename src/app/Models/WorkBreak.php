@@ -19,6 +19,13 @@ class WorkBreak extends Model
         'break2_end',
     ];
 
+    protected $casts = [
+        'break1_start' => 'datetime',
+        'break1_end' => 'datetime',
+        'break2_start' => 'datetime',
+        'break2_end' => 'datetime',
+    ];
+
     public function attendance()
     {
         return $this->belongsTo(Attendance::class);

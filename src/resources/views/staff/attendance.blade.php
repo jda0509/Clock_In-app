@@ -10,8 +10,8 @@
     @if($status === 'before_work')
         <p class="status">勤務外</p>
         <div class="today_date">
-            <h2 id="today"></h2>
-            <p id="clock"></p>
+            <p id="today"></p>
+            <h2 id="clock"></h2>
         </div>
         <form method="post" action="{{ route('attendance.start') }}" >
             @csrf
@@ -21,55 +21,65 @@
     @elseif ($status === 'working')
         <p class="status">出勤中</p>
         <div class="today_date">
-            <h2 id="today"></h2>
-            <p id="clock"></p>
+            <p id="today"></p>
+            <h2 id="clock"></h2>
         </div>
         <form action="{{ route('attendance.end') }}" method="post">
             @csrf
             <button class="clock_out" type="submit">退勤</button>
         </form>
-        <form action="{{ route('attendance.break') }}" method="post">
+        <form action="{{ route('attendance.break.start') }}" method="post">
             @csrf
-            <button class="break">休憩入</button>
+            <button class="break" type="submit">休憩入</button>
         </form>
 
     @elseif ($status === 'on_break')
         <p class="status">休憩中</p>
         <div class="today_date">
-            <h2 id="today"></h2>
-            <p id="clock"></p>
+            <p id="today"></p>
+            <h2 id="clock"></h2>
         </div>
-        <form action="{{ route('attendance.resume') }}" method="post">
+        <form action="{{ route('attendance.break.end') }}" method="post">
             @csrf
-            <button class="break">休憩戻</button>
+            <button class="break" type="submit">休憩戻</button>
         </form>
 
     @elseif ($status === 'after_work')
         <p class="status">退勤済</p>
         <div class="today_date">
-            <h2 id="today"></h2>
-            <p id="clock"></p>
+            <p id="today"></p>
+            <h2 id="clock"></h2>
         </div>
         <p class="message">お疲れ様でした。</p>
 
     @endif
-
-    <script>
-        function updateClock(){
-            const now = new Date();
-            const date = now.getFullYear() + '年' +
-                        String(now.getMonth() +1).padStart(2,'0') + '月' +
-                        String(now.getDate()).padStart(2,'0') + '日';
-
-            const time = String(now.getHours()).padStart(2,'0') + ":" +
-                        String(now.getMinutes()).padStart(2,'0') + ":" +
-                        String(now.getSeconds()).padStart(2,'0');
-
-            document.getElementById('today').innerText = date;
-            document.getElementById('clock').innerText = time;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-    </section>
 </div>
 
+<script>
+    function updateTime(){
+        const now = new Date();
+
+        const days = ['日','月','火','水','木','金','土'];
+        const dayOfWeek = days[now.getDay()];
+
+        const dateText = now.getFullYear() + '年' +
+                    String(now.getMonth() +1).padStart(2,'0') + '月' +
+                    String(now.getDate()).padStart(2,'0') + '日' +
+                    '(' + dayOfWeek + ')';
+
+        const timeText = String(now.getHours()).padStart(2,'0') + ":" +
+                    String(now.getMinutes()).padStart(2,'0');
+
+        const elDate = document.getElementById('today');
+        const elTime = document.getElementById('clock');
+
+        if (elDate) elDate.textContent = dateText;
+        if (elTime) elTime.textContent = timeText;
+
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+</script>
+
+
+@endsection

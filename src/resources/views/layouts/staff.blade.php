@@ -17,7 +17,7 @@
                     <img src="" alt="">
                 </a>
             </div>
-            <niv class="header__content">
+            <nav class="header__content">
                 <ul class="header__nav">
                     <li><a href="" class="clock__in">勤怠</a></li>
                     <li><a href="" class="clock__in__list">勤怠一覧</a></li>
@@ -29,10 +29,9 @@
                         </form>
                     </li>
                 </ul>
-            </niv>
+            </nav>
         </div>
     </header>
-
     <main>
         @yield('content')
     </main>

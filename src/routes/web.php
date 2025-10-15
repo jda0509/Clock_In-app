@@ -28,6 +28,10 @@ Route::post('/register', [LoginController::class, 'register'])->name('staff.regi
 
 Route::middleware(['auth:staff', 'verified'])->group(function(){
     Route::get('/attendance', [StaffController::class, 'index'])->name('staff.attendance');
+    Route::post('/attendance/start', [StaffController::class, 'startWork'])->name('attendance.start');
+    Route::post('/attendance/break/start', [StaffController::class, 'startBreak'])->name('attendance.break.start');
+    Route::post('/attendance/break/end', [StaffController::class, 'endBreak'])->name('attendance.break.end');
+    Route::post('/attendance/end', [StaffController::class, 'endWork'])->name('attendance.end');
 });
 
 Route::post('/register', [LoginController::class, 'register'])->name('register');
