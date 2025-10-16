@@ -19,7 +19,7 @@ class CreateAttendancesTable extends Migration
             $table->date('work_date');
             $table->time('clock_in')->nullable();
             $table->time('clock_out')->nullable();
-            $table->integer('total_work_minutes')->nullable();
+            $table->string('total_work_minutes')->nullable();
             $table->timestamps();
 
             $table->unique(['staff_id', 'work_date']);

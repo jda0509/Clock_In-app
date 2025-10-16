@@ -23,7 +23,7 @@
                     <li><a href="" class="clock__in__list">勤怠一覧</a></li>
                     <li><a href="" class="application__list">申請</a></li>
                     <li>
-                        <form action="/logout" method="post">
+                        <form action="{{ route('logout') }}" method="post">
                             @csrf
                             <button class="logout">ログアウト</button>
                         </form>

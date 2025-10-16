@@ -117,11 +117,29 @@ class StaffController extends Controller
             ->whereDate('work_date', Carbon::today())
             ->firstOrFail();
 
-        if (!$attendance->clock_out) {
-            $attendance->update([
-                'clock_out' => Carbon::now(),
-            ]);
+        $clockOut = now();
+        $clockIn = Carbon::parse($attendance->clock_in);
+
+        $breaks = WorkBreak::where('attendance_id', $attendance->id)->get();
+
+        $totalBreakMinutes = 0;
+        foreach ($breaks as $break){
+            if ($break->break_in && $break->break_out) {
+                $in = Carbon::parse($break->break_in);
+                $out = Carbon::parse($break->break_out);
+                $totalBreakMinutes += $in->diffInMinutes($out);
+            }
         }
+        $totalMinutes = $clockIn->diffInMinutes($clockOut) - $totalBreakMinutes;
+
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+        $formattedTotal = sprintf('%02d:%02d', $hours, $minutes);
+
+        $attendance->update([
+            'clock_out' => $clockOut,
+            'total_work_minutes' => $formattedTotal,
+        ]);
 
         return redirect()->route('staff.attendance');
     }

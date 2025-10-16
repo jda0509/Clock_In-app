@@ -7,6 +7,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AttendanceController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,3 +67,5 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function (){
     Route::post('attendance/export', [AttendanceController::class, 'exportCsv'])->name('admin.attendance.export');
 });
 
+
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
