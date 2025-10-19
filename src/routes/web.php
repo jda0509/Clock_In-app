@@ -22,7 +22,7 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 
 //staff用
-Route::get('/login', [LoginController::class, 'index']);
+Route::get('/login', [LoginController::class, 'index'])->name('index');
 Route::post('/login', [LoginController::class, 'login'])->name('staff.login');
 Route::get('/register', [LoginController::class, 'create']);
 Route::post('/register', [LoginController::class, 'register'])->name('staff.register');
@@ -46,6 +46,8 @@ Route::get('/email/verify/{id}/{hash}',function (EmailVerificationRequest $reque
     $request->fulfill();
     return redirect('/attendance');
 })->middleware(['auth:staff', 'signed'])->name('verification.verify');
+Route::get('/attendance/list', [AttendanceController::class, 'index'])->name('attendance.list');
+
 
 //admin用
 Route::get('/admin/login', [LoginController::class, 'adminIndex']);
@@ -68,4 +70,4 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function (){
 });
 
 
-Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+Route::post('/staff/logout', [LoginController::class, 'logout'])->name('staff.logout');

@@ -13,9 +13,11 @@ class StaffAttendanceSeeder extends Seeder
 {
     public function run()
     {
-        $staffs = Staff::factory()->count(5)->create();
+        $newStaffs = Staff::factory()->count(5)->create();
 
-        foreach ($staffs as $staff) {
+        $allStaffs = Staff::all();
+
+        foreach ($allStaffs as $staff) {
             $periodStart = Carbon::today()->subMonths(3);
             $periodEnd = Carbon::today();
 

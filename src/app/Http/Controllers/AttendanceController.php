@@ -12,38 +12,62 @@ use App\Models\WorkBreak;
 
 class AttendanceController extends Controller
 {
-    public function show()
+    public function index(Request $request, $month = null)
     {
-        $today = now()->toDateString();
-        $attendance = Attendance::where('user_id', auth()->id())
-                                ->where('date', $today)
-                                ->first();
+        $staff = Auth::guard('staff')->user();
 
-        return view('staff.attendance', compact('attendance'));
-    }
+        $targetMonth = $request->input('month',now()->format('Y-m'));
+        $targetMonth = str_replace('/', '-', $targetMonth);
+        $targetDate = Carbon::createFromFormat('Y-m', $targetMonth)->startOfMonth();
 
-    public function show2()
-    {
-        $user = auth()->user();
-        $attendance = $user->todayAttendance;
+        $previousMonth = $targetDate->copy()->subMonth()->format('Y/m');
+        $nextMonth = $targetDate->copy()->addMonth()->format('Y/m');
 
-        if (is_null($attendance->clock_in)) {
-            $status = 'before_work';
-        } elseif (!is_null($attendance->clock_in) && is_null($attendance->clock_out)) {
-            if ($attendance->is_on_break) {
-                $status = 'on_break';
-            } else {
-                $status = 'working';
+        $attendances = Attendance::with(['work_breaks','applications'])
+            ->where('staff_id', $staff->id)
+            ->whereYear('work_date', $targetDate->year)
+            ->whereMonth('work_date', $targetDate->month)
+            ->orderBy('work_date', 'asc')
+            ->get();
+
+        $attendances->transform(function($attendance) {
+            $attendance->formatted_clock_in = $attendance->clock_in ? Carbon::parse($attendance->clock_in)->format('H:i') : '-';
+            $attendance->formatted_clock_out = $attendance->clock_out ? Carbon::parse($attendance->clock_out)->format('H:i') : '-';
+
+            $totalBreakMinutes = 0;
+            foreach ($attendance->work_breaks as $break) {
+                if ($break->break1_start && $break->break1_end) {
+                    $totalBreakMinutes += Carbon::parse($break->break1_end)->diffInMinutes(Carbon::parse($break->break1_start));
+                }
+                if ($break->break2_start && $break->break2_end) {
+                    $totalBreakMinutes += Carbon::parse($break->break2_end)->diffInMinutes(Carbon::parse($break->break2_start));
+                }
             }
-        } else {
-            $status = 'after_work';
-        }
+            $attendance->break_duration = $totalBreakMinutes;
 
-        return view('attendance.index', compact('status'));
+            if ($attendance->clock_in && $attendance->clock_out) {
+                $workMinutes = Carbon::parse($attendance->clock_out)->diffInMinutes(Carbon::parse($attendance->clock_in));
+                $attendance->work_duration = $workMinutes - $totalBreakMinutes;
+            } else {
+                $attendance->work_duration = null;
+            }
+
+            $attendance->weekday = Carbon::parse($attendance->work_date)->format('D');
+
+            return $attendance;
+        });
+
+        return view('attendance.list', compact(
+            'attendances',
+            'targetMonth',
+            'previousMonth',
+            'nextMonth'
+        ));
+
     }
 
 
-    public function index()
+    /*public function index()
     {
         $attendances = Attendance::with('staff', 'work_break')->get();
 
@@ -68,6 +92,7 @@ class AttendanceController extends Controller
 
         return view('attendance.index', compact('attendances'));
     }
+    */
 
     /*
     public function dailyReport(Request $request)

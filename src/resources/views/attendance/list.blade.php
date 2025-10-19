@@ -5,53 +5,69 @@
 @endsection
 
 @section('content')
-@php
-    $disabled = $hasPending ? 'disabled' : '';
-@endphp
 
-<div class="detail_main">
-    <h2 class="page_title">勤怠詳細</h2>
-    <form action="" method="post">
-        @csrf
-        <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-        <div class="detail_name">
-            <label for="" class="name_label">名前</label>
-            <div class="staff_name">{{ $attendance->staff->name }}</div>
-        </div>
-        <div class="detail_date">
-            <label for="" class="date_label">日付</label>
-            <div class="staff_date">{{ $attendance->work_date }}</div>
-        </div>
-        <div class="detail_clock">
-            <label for="" class="clock_label">出勤・退勤</label>
-            <input type="time" name="new_clock_in" value="{{ old('new_clock_in', $attendance->clock_in) }}" {{ $disabled }}>
-            <span>〜</span>
-            <input type="time" name="new_clock_out" value="{{ old('new_clock_out', $attendance->clock_out) }}" {{ $disabled }}>
-        </div>
-        <div class="detail_break">
-            <label for="" class="break_label_1">休憩</label>
-            <input type="time" name="new_break1_start" value="{{ old('new_break_start', $work_break->break1_start) }}" {{ $disabled }}>
-            <span>〜</span>
-            <input type="time" name="new_break1_end" value="{{ old('new_break_end', $work_break->break1_end }}" {{ $disabled }}>
-        </div>
-        <div class="detail_break2">
-            <label for="" class="break_label_2">休憩２</label>
-            <input type="time" name="new_break2_start" value="{{ old('new_break2_start', $work_break->break2_start }}" {{ $disabled }}>
-            <input type="time" name="new_break2_end" value="{{ old('new_break2_end', $work_break->break2_end) }}" {{ $disabled }}>
-        </div>
-        <div class="detail_reason">
-            <label for="" class="note_label">備考</label>
-            <textarea class="reason_main" {{ $disabled }}>{{ optional($attendance->applications()->latest()->first())->reason }}</textarea>
-        </div>
-
-        @if(!hasPending)
-            <div class="detail_button">
-                <button class="button_main" type="submit">修正</button>
-            </div>
-        @else
-            <p class="detail_message">承認待ちのため修正はできません。</p>
-        @endif
-    </form>
+@section('content')
+<div class="main_content">
+    <h2 class="page_title">勤怠一覧</h2>
+    <div class="month-navigation">
+        <a href="{{ route('attendance.list', ['month' => $previousMonth]) }}" class="previousMonth">
+            <img src="" alt="←">
+            前月
+        </a>
+        <span class="thisMonth">
+            <img src="" alt="カレンダー">{{ $targetMonth }}
+        </span>
+        <a href="{{ route('attendance.list', ['month' => $nextMonth ]) }}" class="nextMonth">
+            翌月<img src="" alt="→">
+        </a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="title">日付</th>
+                <th class="title">出勤</th>
+                <th class="title">退勤</th>
+                <th class="title">休憩</th>
+                <th class="title">合計</th>
+                <th class="title">詳細</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($attendances as $attendance)
+                @php
+                    $weekdayMap = [
+                        'Sun' => '日', 'Mon' => '月', 'Tue' => '火',
+                        'Wed' => '水', 'Thu' => '木', 'Fri' => '金', 'Sat' => '土'
+                    ];
+                    $weekdayJa = $weekdayMap[$attendance->weekday] ?? '';
+                @endphp
+                <tr>
+                    <td>{{ \Carbon\Carbon::parse($attendance->work_date)->format('m/d') }}
+                        {{ $weekdayJa }}
+                    </td>
+                    <td>{{ $attendance->formatted_clock_in }}</td>
+                    <td>{{ $attendance->formatted_clock_out }}</td>
+                    <td>
+                        @if ($attendance->break_duration)
+                            {{ gmdate('H:i' , $attendance->break_duration * 60) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if ($attendance->work_duration)
+                            {{ gmdate('H:i', $attendance->work_duration * 60) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        <a href="" class="btn">詳細</a>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>
 
 @endsection

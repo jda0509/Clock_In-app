@@ -19,13 +19,13 @@
             </div>
             <nav class="header__content">
                 <ul class="header__nav">
-                    <li><a href="" class="clock__in">勤怠</a></li>
-                    <li><a href="" class="clock__in__list">勤怠一覧</a></li>
+                    <li><a href="{{ route('staff.attendance') }}" class="clock__in">勤怠</a></li>
+                    <li><a href="{{ route('attendance.list') }}" class="clock__in__list">勤怠一覧</a></li>
                     <li><a href="" class="application__list">申請</a></li>
                     <li>
-                        <form action="{{ route('logout') }}" method="post">
+                        <form action="{{ route('staff.logout') }}" method="post">
                             @csrf
-                            <button class="logout">ログアウト</button>
+                            <button class="logout" type="submit">ログアウト</button>
                         </form>
                     </li>
                 </ul>
