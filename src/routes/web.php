@@ -6,6 +6,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ApplicationController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
@@ -33,6 +34,10 @@ Route::middleware(['auth:staff', 'verified'])->group(function(){
     Route::post('/attendance/break/start', [StaffController::class, 'startBreak'])->name('attendance.break.start');
     Route::post('/attendance/break/end', [StaffController::class, 'endBreak'])->name('attendance.break.end');
     Route::post('/attendance/end', [StaffController::class, 'endWork'])->name('attendance.end');
+    Route::get('/stamp_correction_request/list', [ApplicationController::class, 'index'])->name('application.list');
+    Route::get('/stamp_corrections_request', [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/attendance/detail/{id}', [ApplicationController::class, 'show'])->name('attendances.show');
+    Route::post('/stamp_correction_request/detail/{id}', [ApplicationController::class, 'store'])->name('stamp_corrections.store');
 });
 
 Route::post('/register', [LoginController::class, 'register'])->name('register');

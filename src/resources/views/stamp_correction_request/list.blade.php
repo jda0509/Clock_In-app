@@ -38,7 +38,7 @@
                             <td>{{ $application->reason }}</td>
                             <td>{{ $application->created_at->format('Y-m-d H:i') }}</td>
                             <td>
-                                <a href="{{ route('attendance.show' , $application->attendance_id }}">
+                                <a href="{{ route('attendances.show' , ['id' => $application->attendance_id]) }}">
                                     詳細
                                 </a>
                             </td>
@@ -52,12 +52,12 @@
                     @if($application->status === 'approved')
                         <tr>
                             <td>承認済み</td>
-                            <td>{{ $application->staff->id }}</td>
+                            <td>{{ $application->staff->name }}</td>
                             <td>{{ $application->attendance->work_date }}</td>
                             <td>{{ $application->reason }}</td>
                             <td>{{ $application->created_at->format('Y-m-d H:i') }}</td>
                             <td>
-                                <a href="{{ route('attendances.show', $application->attendance_id) }}">
+                                <a href="{{ route('attendances.show', ['id' => $application->attendance_id]) }}">
                                     詳細
                                 </a>
                             </td>
@@ -68,3 +68,5 @@
         </tbody>
     </table>
 </div>
+
+@endsection
