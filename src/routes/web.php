@@ -26,7 +26,6 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 Route::get('/login', [LoginController::class, 'index'])->name('index');
 Route::post('/login', [LoginController::class, 'login'])->name('staff.login');
 Route::get('/register', [LoginController::class, 'create']);
-Route::post('/register', [LoginController::class, 'register'])->name('staff.register');
 
 Route::middleware(['auth:staff', 'verified'])->group(function(){
     Route::get('/attendance', [StaffController::class, 'index'])->name('staff.attendance');
@@ -57,7 +56,13 @@ Route::get('/attendance/list', [AttendanceController::class, 'index'])->name('at
 //admin用
 Route::get('/admin/login', [LoginController::class, 'adminIndex']);
 Route::post('/admin/login', [LoginController::class, 'adminLogin'])->name('admin.login');
-Route::get('/admin/attendance/list', [LoginController::class, 'adminAttendance'])->name('admin.attendance');
+
+Route::prefix('admin')->middleware('auth:admin')->group(function(){
+    Route::get('attendance/list/{date?}', [AttendanceController::class,'adminAttendance'])
+        ->name('admin.attendance.list');
+});
+
+Route::get('/admin/attendance/{id}', [AdminController::class, 'show'])->name('admin.attendance.show');
 
 
 

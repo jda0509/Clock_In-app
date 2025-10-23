@@ -22,12 +22,6 @@ class Attendance extends Model
         'total_work_minutes',
     ];
 
-    protected $casts = [
-        'work_date' => 'date',
-        'start_work' => 'datetime',
-        'end_work' => 'datetime',
-    ];
-
     public function staff()
     {
         return $this->belongsTo(Staff::class);

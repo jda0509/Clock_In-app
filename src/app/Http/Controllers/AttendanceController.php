@@ -175,5 +175,48 @@ class AttendanceController extends Controller
         return $start->diffInMinutes($end) / 60;
     }
 
+    public function adminAttendance($date = null)
+    {
+        $currentDate = $date ? Carbon::parse($date) : Carbon::today();
+
+        $prevDate = $currentDate->copy()->subDay()->format('Y-m-d');
+        $nextDate = $currentDate->copy()->addDay()->format('Y-m-d');
+
+        $attendances = Attendance::with('staff', 'work_breaks')
+            ->whereDate ('work_date', $currentDate)
+            ->orderBy('work_date', 'desc')
+            ->get();
+
+        $attendances->transform(function($attendance){
+            $attendance->formatted_clock_in = $attendance->clock_in ? Carbon::parse($attendance->clock_in)->format('H:i') : '-';
+            $attendance->formatted_clock_out = $attendance->clock_out ? Carbon::parse($attendance->clock_out)->format('H:i') : '-';
+
+            $totalBreakMinutes = 0;
+            foreach ($attendance->work_breaks as $break) {
+                if ($break->break1_start && $break->break1_end) {
+                    $totalBreakMinutes += Carbon::parse($break->break1_end)->diffInMinutes(Carbon::parse($break->break1_start));
+                }
+                if ($break->break2_start && $break->break2_end) {
+                    $totalBreakMinutes += Carbon::parse($break->break2_end)->diffInMinutes(Carbon::parse($break->break2_start));
+                }
+            }
+            $attendance->break_duration = $totalBreakMinutes;
+
+            if ($attendance->clock_in && $attendance->clock_out) {
+                $workMinutes = Carbon::parse($attendance->clock_out)->diffInMinutes(Carbon::parse($attendance->clock_in));
+                $attendance->work_duration = $workMinutes - $totalBreakMinutes;
+            } else {
+                $attendance->work_duration = null;
+            }
+
+            $attendance->weekday = Carbon::parse($attendance->work_date)->format('D');
+
+            return $attendance;
+        });
+
+        return view('admin.attendance.list', compact('attendances', 'currentDate', 'prevDate', 'nextDate'));
+
+    }
+
 
 }

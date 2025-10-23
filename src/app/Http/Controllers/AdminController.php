@@ -4,16 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Attendance;
 
 class AdminController extends Controller
 {
     public function index()
     {
+        $attendances = Attendance::with ('staff', 'work_breaks')->orderBy('work_date', 'desc')->get();
         $today = Carbon::today()->format('Y年m月d日');
-        $attendance = Attendance::with('staff')
-            ->whereDate('work_date', Carbon::today())
-            ->get();
 
-        return view('admin.attendance.index', compact('today', 'attendances'));
+        $staff = $attendances->first()?->staff;
+
+        return view('admin.attendance.list', compact('today', 'attendances','staff'));
+    }
+
+    public function show($id)
+    {
+        $attendance = Attendance::with('staff', 'work_breaks', 'applications')->findOrFail($id);
+
+        $hasPending = $attendance->applications()->where('status', 'pending')->exists();
+
+        return view('admin.attendance', compact('attendance', 'hasPending'));
     }
 }

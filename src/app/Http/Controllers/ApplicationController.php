@@ -33,7 +33,7 @@ class ApplicationController extends Controller
     {
         $attendance = Attendance::findOrFail($id);
 
-        $hasPending = $attendance->application()->where('status', 'pending')->exists();
+        $hasPending = $attendance->applications()->where('status', 'pending')->exists();
         if ($hasPending) {
             return back()->with('error', '既に承認待ちの申請があります。');
         }
@@ -61,7 +61,7 @@ class ApplicationController extends Controller
             'end_time' => $request->input('new_break2_end'),
         ]);
 
-        return redirect()->route('stamp_correction_request.list')
+        return redirect()->route('attendances.show', ['id' => $attendance->id])
                         ->with('success', '修正申請を送信しました。');
     }
 
@@ -79,7 +79,7 @@ class ApplicationController extends Controller
 
     }
     
-    public function store2(Request $request)
+    /*public function store2(Request $request)
     {
         Application::create([
             'staff_id' => Auth::id(),
@@ -128,5 +128,5 @@ class ApplicationController extends Controller
         $application->update(['status' => 'approved']);
 
         return redirect()->route('application.index');
-    }
+    }*/
 }

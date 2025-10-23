@@ -61,7 +61,7 @@
                                     詳細
                                 </a>
                             </td>
-                        </th>
+                        </tr>
                     @endif
                 @endforeach
             @endif

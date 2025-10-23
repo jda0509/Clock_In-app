@@ -11,7 +11,7 @@
         <h2>ログイン</h2>
     </div>
     <div class="login-form__main">
-        <form action="{{ route('staff.login') }}" method="post">
+        <form action="{{ route('staff.login') }}" method="post" novalidate>
             @csrf
             <div class="login-form__email">
                 <div class="email__label">メールアドレス</div>

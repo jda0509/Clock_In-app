@@ -11,7 +11,7 @@
         <h2>会員登録</h2>
     </div>
     <div class="register-form__main">
-        <form action="" method="post">
+        <form action="{{ route('register') }}" method="post" novalidate>
             @csrf
             <div class="register-form__name">
                 <div class="name__label">名前</div>

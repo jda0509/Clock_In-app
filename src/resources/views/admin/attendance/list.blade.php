@@ -1,4 +1,4 @@
-@extends('layouts.staff')
+@extends('layouts.admin')
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/admin/attendance/list.css') }}">
@@ -6,17 +6,18 @@
 
 @section('content')
 <div class="main_content">
-    <h2 class="page_title">{{ $attendance->staff->name }}の勤怠</h2>
+    <h2 class="page_title">{{ $currentDate->format('Y年m月d日') }}の勤怠</h2>
     <div class="month-navigation">
-        <a href="" class="prevMonth">
+        <a href="{{ route('admin.attendance.list', ['date' => $prevDate]) }}" class="prevMonth">
             <img src="" alt="←">
-            前月
+            前日
         </a>
         <span class="thisMonth">
-            <img src="" alt="カレンダー">{{}}
+            <img src="" alt="カレンダー">
+            {{ $currentDate->format('m月d日')}}
         </span>
-        <a href="" class="nextMonth">
-            翌月<img src="" alt="→">
+        <a href="{{ route('admin.attendance.list', ['date' => $nextDate]) }}" class="nextMonth">
+            翌日<img src="" alt="→">
         </a>
     </div>
     <table class="table">
@@ -33,19 +34,19 @@
         <tbody>
             @foreach ($attendances as $attendance)
                 <tr>
-                    <td>{{ $attendance->user->name }}</td>
-                    <td>{{ $attendance->clock_in ? $attendance->clock_in->format('H:i') : '-' }}</td>
-                    <td>{{ $attendance->clock_out ? $attendance->clock_out->format('H:i') : '-' }}</td>
-                    <td>{{ $attendance->break_duration ? gmdate('H:i' , $attendance->break_duration) : '-' }}</td>
+                    <td>{{ $attendance->staff->name }}</td>
+                    <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}</td>
+                    <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}</td>
+                    <td>{{ gmdate('H:i' , $attendance->break_duration * 60) }}</td>
                     <td>
-                        @if ($attendance->clock_in && $attendance->clock_out)
-                            {{ gmdate('H:i', $attendance->work_duration) }}
+                        @if ($attendance->work_duration)
+                            {{ gmdate('H:i', $attendance->work_duration * 60) }}
                         @else
                             -
                         @endif
                     </td>
                     <td>
-                        <a href="" class="btn">詳細</a>
+                        <a href="{{ route('admin.attendance.show', ['id' => $attendance->id]) }}" class="btn">詳細</a>
                     </td>
                 </tr>
             @endforeach
@@ -54,7 +55,9 @@
     <form action="{{ route('admin.attendance.export') }}" method="post" >
         @csrf
         <div class="button">
-            <a href="{{ route('admin.attendance.export}}">CSV出力</a>
+            <a href="{{ route('admin.attendance.export') }}">CSV出力</a>
         </div>
     </form>
 </div>
+
+@endsection

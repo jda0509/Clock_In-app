@@ -21,6 +21,16 @@ class LoginController extends Controller
         return view('admin.login');
     }
 
+    public function adminLogin(LoginRequest $request)
+    {
+        $credentials = $request->only('email', 'password');
+        
+        if (Auth::guard('admin')->attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->route('admin.attendance');
+        }
+    }
+
     public function create()
     {
         return view('register');

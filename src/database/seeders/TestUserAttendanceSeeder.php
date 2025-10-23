@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Staff;
 use App\Models\Attendance;
 use App\Models\WorkBreak;
