@@ -22,7 +22,7 @@
                     <td>{{ $staff->name }}</td>
                     <td>{{ $staff->email }}</td>
                     <td>
-                        <a href="">
+                        <a href="{{ route('admin.staff.monthly', ['id' => $staff->id]) }}" class="btn">
                         詳細
                         </a>
                     </td>
