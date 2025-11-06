@@ -24,11 +24,15 @@ class LoginController extends Controller
     public function adminLogin(LoginRequest $request)
     {
         $credentials = $request->only('email', 'password');
-        
+
         if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('admin.attendance');
+            return redirect()->route('admin.attendance.list');
         }
+
+        dd($credentials);
+
+        return back();
     }
 
     public function create()
@@ -90,11 +94,18 @@ class LoginController extends Controller
         return back()->with('status', '確認メールを再送しました。');
     }
 
-    public function logout(Request $request)
+    public function destroy(Request $request)
     {
         Auth::guard('staff')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        return redirect()->route('index');
+    }
+
+    public function adminDestroy(Request $request)
+    {
+        Auth::guard('admin')->logout();
 
         return redirect()->route('index');
     }

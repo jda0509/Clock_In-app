@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Attendance;
+use App\Models\Staff;
 
 class AdminController extends Controller
 {
@@ -25,5 +26,12 @@ class AdminController extends Controller
         $hasPending = $attendance->applications()->where('status', 'pending')->exists();
 
         return view('admin.attendance', compact('attendance', 'hasPending'));
+    }
+
+    public function adminStaffList()
+    {
+        $staffs = Staff::orderBy('id', 'asc')->get();
+
+        return view('admin.staff.list', compact('staffs'));
     }
 }

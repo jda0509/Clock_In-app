@@ -1,48 +1,65 @@
 @extends('layouts.admin')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/attendance/list.css') }}">
+<link rel="stylesheet" href="{{ asset('css/admin/attendance/staff.css') }}">
 @endsection
 
 @section('content')
 <div class="detail_main">
-    <h2 class="page_title">勤怠詳細</h2>
-    <form action="" method="post">
-        @csrf
-        <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-        <div class="detail_name">
-            <label for="" class="name_label">名前</label>
-            <div class="staff_name">{{ $attendance->staff->name }}</div>
-        </div>
-        <div class="detail_date">
-            <label for="" class="date_label">日付</label>
-            <div class="staff_date">{{ $attendance->work_date }}</div>
-        </div>
-        <div class="detail_clock">
-            <label for="" class="clock_label">出勤・退勤</label>
-            <input type="time" name="new_clock_in" value="{{ old('new_clock_in', $attendance->clock_in) }}">
-            <span>〜</span>
-            <input type="time" name="new_clock_out" value="{{ old('new_clock_out', $attendance->clock_out) }}">
-        </div>
-        <div class="detail_break">
-            <label for="" class="break_label_1">休憩</label>
-            <input type="time" name="new_break1_start" value="{{ old('new_break_start', $work_break->break1_start) }}">
-            <span>〜</span>
-            <input type="time" name="new_break1_end" value="{{ old('new_break_end', $work_break->break1_end }}">
-        </div>
-        <div class="detail_break2">
-            <label for="" class="break_label_2">休憩２</label>
-            <input type="time" name="new_break2_start" value="{{ old('new_break2_start', $work_break->break2_start }}">
-            <input type="time" name="new_break2_end" value="{{ old('new_break2_end', $work_break->break2_end) }}">
-        </div>
-        <div class="detail_reason">
-            <label for="" class="note_label">備考</label>
-            <textarea class="reason_main" >{{ optional($attendance->applications()->latest()->first())->reason }}</textarea>
-        </div>
-        <div class="detail_button">
-            <button class="button_main" type="submit">修正</button>
-        </div>
-    </form>
+    <h2 class="page_title">{{ $staff->name }}さんの勤怠</h2>
+    <div class="month-navigation">
+        <a href="{{ route('admin.staff.monthly', ['id' => $staff->id, 'month' => $previousMonth]) }}" class="previousMonth">
+            <img src="" alt="←">
+            前月
+        </a>
+        <span class="thisMonth">
+            <img src="" alt="カレンダー">{{ $targetMonth }}
+        </span>
+        <a href="{{ route('admin.staff.monthly', ['id' => $staff->id, 'month' => $nextMonth ]) }}" class="nextMonth">
+            翌月<img src="" alt="→">
+        </a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="title">日付</th>
+                <th class="title">出勤</th>
+                <th class="title">退勤</th>
+                <th class="title">休憩</th>
+                <th class="title">合計</th>
+                <th class="title">詳細</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($attendances as $attendance)
+                @php
+                    $date = $attendance->work_date;
+                    $weekdayMap = [
+                        'Sun' => '(日)', 'Mon' => '(月)', 'Tue' => '(火)',
+                        'Wed' => '(水)', 'Thu' => '(木)', 'Fri' => '(金)', 'Sat' => '(土)'
+                    ];
+                    $weekday = $attendance ? $attendance->weekday : \Carbon\Carbon::parse($date)->format('D');
+                    $weekdayJa = $weekdayMap[$weekday] ?? '';
+                @endphp
+                <tr>
+                    <td>{{ \Carbon\Carbon::parse($date)->format('m/d') }}
+                        {{ $weekdayJa }}
+                    </td>
+                    <td>{{ $attendance->formatted_clock_in ?? '' }}</td>
+                    <td>{{ $attendance->formatted_clock_out ?? ''}}</td>
+                    <td>{{ $attendance->break_duration ?? ''}}</td>
+                    <td>{{ $attendance->work_duration ?? ''}}</td>
+                    <td>
+                        @if($attendance->id)
+                            <a href="{{ route('admin.attendance.show', ['id' => $attendance->id]) }}" class="btn">詳細</a>
+                        @else
+                            <span class="btn">詳細</span>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>
 
 @endsection

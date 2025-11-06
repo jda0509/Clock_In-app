@@ -40,7 +40,7 @@
         @method('PATCH')
         <input type="hidden" name="status" value="approved">
         <div class="detail_button">
-            <button class="button_main" type="submit">承認</button>
+            <button class="button_main" type="submit">修正</button>
         </div>
     </form>
 </div>

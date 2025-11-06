@@ -1,18 +1,22 @@
-@extends('layouts.staff')
+@php
+    $layout = Auth::guard('admin')->check() ? 'layouts.admin' : 'layouts.staff';
+@endphp
 
-@section('css')
-<link rel="stylesheet" href="{{ asset('css/stamp_correction/list.css') }}">
-@endsection
+@extends($layout)
 
 @section('content')
 
 <div class="stamp_correction_main">
     <h2 class="page_title">勤怠詳細</h2>
     <div class="tab">
-        <a href="{{ route('applications.index', ['tab' => 'pending']) }}">
+        <a href="{{ Auth::guard('admin')->check()
+            ? route('admin.application.list', ['tab' => 'pending'])
+            : route('applications.index', ['tab' => 'pending']) }}">
             承認待ち
         </a>
-        <a href="{{ route('applications.index', ['tab' => 'approved']) }}">
+        <a href="{{ Auth::guard('admin')->check()
+            ? route('admin.application.list', ['tab' => 'approved'])
+            : route('applications.index', ['tab' => 'approved']) }}">
             承認済み
         </a>
     </div>
@@ -38,9 +42,19 @@
                             <td>{{ $application->reason }}</td>
                             <td>{{ $application->created_at->format('Y-m-d H:i') }}</td>
                             <td>
-                                <a href="{{ route('attendances.show' , ['id' => $application->attendance_id]) }}">
-                                    詳細
-                                </a>
+                                @php
+                                    $user = Auth::guard('staff')->user();
+                                @endphp
+
+                                @if (Auth::guard('admin')->check())
+                                    <a href="{{ route('admin.attendance.show', ['id' => $application->attendance_id]) }}">
+                                        詳細
+                                    </a>
+                                @elseif (Auth::guard('staff')->check())
+                                    <a href="{{ route('attendances.show', ['id' => $application->attendance_id]) }}">
+                                        詳細
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                     @endif
@@ -57,9 +71,15 @@
                             <td>{{ $application->reason }}</td>
                             <td>{{ $application->created_at->format('Y-m-d H:i') }}</td>
                             <td>
-                                <a href="{{ route('attendances.show', ['id' => $application->attendance_id]) }}">
-                                    詳細
-                                </a>
+                                @if (Auth::guard('admin')->check())
+                                    <a href="{{ route('admin.attendance.show', ['id' => $application->attendance_id]) }}">
+                                        詳細
+                                    </a>
+                                @elseif (Auth::guard('staff')->check())
+                                    <a href="{{ route('attendances.show', ['id' => $application->attendance_id]) }}">
+                                        詳細
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                     @endif

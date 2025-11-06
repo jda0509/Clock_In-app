@@ -21,9 +21,23 @@ class RedirectIfAuthenticated
     {
         $guards = empty($guards) ? [null] : $guards;
 
+        dd([
+            'admin_guard_logged_in?' => Auth::guard('admin')->check(),
+            'staff_guard_logged_in?' => Auth::guard('staff')->check(),
+        ]);
+
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                logger('RedirectIfAuthenticated fired', ['guard' => $guard]);
+
+                switch ($guard) {
+                    case 'admin':
+                        return redirect('/admin/attendance');
+                    case 'staff':
+                        return redirect('/attendance');
+                    default:
+                        return redirect('/login');
+                }
             }
         }
 

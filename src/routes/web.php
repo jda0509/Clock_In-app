@@ -33,8 +33,9 @@ Route::middleware(['auth:staff', 'verified'])->group(function(){
     Route::post('/attendance/break/start', [StaffController::class, 'startBreak'])->name('attendance.break.start');
     Route::post('/attendance/break/end', [StaffController::class, 'endBreak'])->name('attendance.break.end');
     Route::post('/attendance/end', [StaffController::class, 'endWork'])->name('attendance.end');
+    Route::get('/attendance/list', [AttendanceController::class, 'index'])->name('attendance.list');
     Route::get('/stamp_correction_request/list', [ApplicationController::class, 'index'])->name('application.list');
-    Route::get('/stamp_corrections_request', [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/stamp_correction_request', [ApplicationController::class, 'index'])->name('applications.index');
     Route::get('/attendance/detail/{id}', [ApplicationController::class, 'show'])->name('attendances.show');
     Route::post('/stamp_correction_request/detail/{id}', [ApplicationController::class, 'store'])->name('stamp_corrections.store');
 });
@@ -50,7 +51,6 @@ Route::get('/email/verify/{id}/{hash}',function (EmailVerificationRequest $reque
     $request->fulfill();
     return redirect('/attendance');
 })->middleware(['auth:staff', 'signed'])->name('verification.verify');
-Route::get('/attendance/list', [AttendanceController::class, 'index'])->name('attendance.list');
 
 
 //admin用
@@ -60,9 +60,20 @@ Route::post('/admin/login', [LoginController::class, 'adminLogin'])->name('admin
 Route::prefix('admin')->middleware('auth:admin')->group(function(){
     Route::get('attendance/list/{date?}', [AttendanceController::class,'adminAttendance'])
         ->name('admin.attendance.list');
+    Route::get('attendance/list', [AttendanceController::class,'adminAttendance'])
+        ->name('admin.attendance');
+    Route::get('attendance/{id}', [AttendanceController::class, 'adminShow'])
+        ->name('admin.attendance.show');
+    Route::get('attendance/staff/{id}', [AttendanceController::class, 'adminStaffMonthly'])
+        ->name('admin.staff.monthly');
+    Route::post('attendance/{id}', [ApplicationController::class, 'adminUpdate'])
+        ->name('admin.attendance.update');
+    Route::get('staff/list', [AdminController::class, 'adminStaffList'])
+        ->name('admin.staff.list');
+    Route::get('/stamp_correction_request/list', [ApplicationController::class, 'index'])
+        ->name('admin.application.list');
 });
 
-Route::get('/admin/attendance/{id}', [AdminController::class, 'show'])->name('admin.attendance.show');
 
 
 
@@ -80,4 +91,5 @@ Route::prefix('admin')->middleware(['auth:admin'])->group(function (){
 });
 
 
-Route::post('/staff/logout', [LoginController::class, 'logout'])->name('staff.logout');
+Route::post('/staff/logout', [LoginController::class, 'destroy'])->name('staff.logout');
+Route::post('/admin/logout', [LoginController::class, 'adminDestroy'])->name('admin.logout');

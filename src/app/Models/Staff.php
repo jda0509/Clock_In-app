@@ -19,11 +19,16 @@ class Staff extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'is_admin',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $casts = [
+        'is_admin' => 'boolean',
     ];
 
     public function attendances()

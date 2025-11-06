@@ -19,11 +19,11 @@
             </div>
             <niv class="header__content">
                 <ul class="header__nav">
-                    <li><a href="" class="clock__in__list">勤怠一覧</a></li>
-                    <li><a href="" class="staff__list">スタッフ一覧</a></li>
-                    <li><a href="" class="application__list">申請一覧</a></li>
+                    <li><a href="{{ route('admin.attendance') }}" class="clock__in__list">勤怠一覧</a></li>
+                    <li><a href="{{ route('admin.staff.list') }}" class="staff__list">スタッフ一覧</a></li>
+                    <li><a href="{{ route('admin.application.list') }}" class="application__list">申請一覧</a></li>
                     <li>
-                        <form action="/logout" method="post">
+                        <form action="{{ route('admin.logout') }}" method="post">
                             @csrf
                             <button class="logout">ログアウト</button>
                         </form>

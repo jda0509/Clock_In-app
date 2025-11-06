@@ -6,76 +6,107 @@ use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\Application;
 use App\Models\ApplicationBreak;
+use App\Http\Requests\ApplicationRequest;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ApplicationController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::guard('staff')->user();
         $tab = $request->query('tab', 'pending');
+        $status = $tab === 'approved' ? 'approved' : 'pending' ;
 
-        if ($user->role === 'admin') {
+        if (Auth::guard('admin')->check()) {
             $applications = Application::with(['staff', 'attendance'])
-                ->latest()
+                ->where('status', $status)
+                ->orderByDesc('created_at')
                 ->get();
-        } else {
+        } elseif (Auth::guard('staff')->check()) {
+            $staff = Auth::guard('staff')->user();
             $applications = Application::with(['staff', 'attendance'])
-                ->where('staff_id', $user->id)
-                ->orderBy('created_at', 'desc')
+                ->where('staff_id', $staff->id)
+                ->where('status', $status)
+                ->orderByDesc('created_at')
                 ->get();
         }
 
         return view('stamp_correction_request.list', compact('applications', 'tab'));
     }
 
-    public function store(Request $request, $id)
+    public function store(Request $request, $attendanceId)
     {
-        $attendance = Attendance::findOrFail($id);
+        $attendance = Attendance::find($attendanceId);
 
-        $hasPending = $attendance->applications()->where('status', 'pending')->exists();
-        if ($hasPending) {
-            return back()->with('error', '既に承認待ちの申請があります。');
+        if (!$attendance) {
+            $attendance = Attendance::create([
+                'staff_id' => Auth::guard('staff')->id(),
+                'work_date' => $attendanceId,
+                'status' => 'pending',
+            ]);
         }
 
         $application = Application::create([
-            'attendance_id' => $attendance->id,
-            'staff_id' => $attendance->staff_id,
+            'attendance_id' => $attendance?->id,
+            'staff_id' => Auth::guard('staff')->id(),
             'reason' => $request->input('reason'),
             'new_clock_in' => $request->input('new_clock_in'),
             'new_clock_out' => $request->input('new_clock_out'),
             'status' => 'pending',
         ]);
 
-        ApplicationBreak::create([
-            'application_id' => $application->id,
-            'break_number' => 1,
-            'start_time' => $request->input('new_break1_start'),
-            'end_time' => $request->input('new_ break2_end'),
-        ]);
+        if ($request->filled('new_break1_start') || $request->filled('new_break1_end')) {
+            ApplicationBreak::create([
+                'application_id' => $application->id,
+                'start_time' => $request->input('new_break1_start'),
+                'end_time' => $request->input('new_break1_end'),
+            ]);
+        }
 
-        ApplicationBreak::create([
-            'application_id' => $application->id,
-            'break_number' => 2,
-            'start_time' => $request->input('new_break2_start'),
-            'end_time' => $request->input('new_break2_end'),
-        ]);
+        if ($request->filled('new_break2_start') || $request->filled('new_break2_end')) {
+            ApplicationBreak::create([
+                'application_id' => $application->id,
+                'start_time' => $request->input('new_break2_start'),
+                'end_time' => $request->input('new_break2_end'),
+            ]);
+        }
 
-        return redirect()->route('attendances.show', ['id' => $attendance->id])
+        return redirect()->route('attendances.show', ['id' => $attendance?->id ?? 'new'])
                         ->with('success', '修正申請を送信しました。');
     }
 
     public function show($id)
     {
-        $attendance = Attendance::with('staff', 'work_breaks', 'applications')->findOrFail($id);
+        $attendance = Attendance::with('staff', 'work_breaks', 'applications')->find($id);
 
-        $hasPending = $attendance->applications()
-            ->where('status', 'pending')
-            ->exists();
+        if (!$attendance) {
+            $cleanId = str_replace('new-', '', $id);
+            $attendanceDate = Carbon::createFromFormat('Ymd', $cleanId);
+            $attendance = new Attendance([
+                'id' => $id,
+                'clock_in' => null,
+                'clock_out'=> null,
+                'work_date' => $attendanceDate,
+            ]);
+            $attendance->setRelation('staff', Auth::guard('staff')->user());
+        } else {
+            $attendanceDate = $attendance->work_date;
+        }
 
-        $work_break = $attendance->work_breaks()->latest()->first();
+        $hasPending = $attendance->exists
+            ? $attendance->applications()->where('status', 'pending')->exists()
+            : false;
 
-        return view('attendance.detail', compact('attendance', 'work_break', 'hasPending'));
+        $work_break = $attendance->exists
+            ? $attendance->work_breaks()->latest()->first()
+            : new \App\Models\WorkBreak([
+                'break1_start' => null,
+                'break1_end' => null,
+                'break2_start' => null,
+                'break2_end' => null,
+            ]);
+
+        return view('attendance.detail', compact('attendance', 'work_break', 'hasPending', 'attendanceDate'));
 
     }
     
@@ -129,4 +160,30 @@ class ApplicationController extends Controller
 
         return redirect()->route('application.index');
     }*/
+
+
+    public function adminUpdate(ApplicationRequest $request, $id)
+    {
+        $date = $request->validated();
+
+        $attendance = Attendance::findOrFail($id);
+
+        $attendance->update([
+            'clock_in' => $request->input('new_clock_in'),
+            'clock_out' => $request->input('new_clock_out'),
+        ]);
+
+        $attendance->work_breaks()->updateOrCreate(
+            ['attendance_id' => $attendance->id],
+            [
+                'break1_start' => $request->input('new_break1_start'),
+                'break1_end' => $request->input('new_break1_end'),
+                'break2_start' => $request->input('new_break2_start'),
+                'break2_end' => $request->input('new_break2_end'),
+            ]
+            );
+
+        return redirect()
+            ->route('admin.attendance.show', ['id' => $attendance->id]);
+    }
 }

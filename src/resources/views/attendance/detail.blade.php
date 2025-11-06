@@ -31,27 +31,35 @@
         </div>
         <div class="detail_break">
             <label for="" class="break_label_1">休憩</label>
-            <input type="time" name="new_break1_start" value="{{ old('new_break1_start', \Carbon\Carbon::parse($work_break->break1_start)->format('H:i')) }}" {{ $disabled }}>
+            <input type="time" name="new_break1_start"
+                @if($work_break && $work_break->break1_start)
+                    value="{{ \Carbon\Carbon::parse($work_break->break1_start)->format('H:i') }}"
+                @endif
+                {{ $disabled }}>
             <span>〜</span>
-            <input type="time" name="new_break1_end" value="{{ old('new_break1_end', \Carbon\Carbon::parse($work_break->break1_end)->format('H:i')) }}" {{ $disabled }}>
+            <input type="time" name="new_break1_end"
+                @if($work_break && $work_break->break1_end)
+                    value="{{ \Carbon\Carbon::parse($work_break->break1_end)->format('H:i') }}"
+                @endif
+                {{ $disabled }}>
         </div>
         <div class="detail_break2">
             <label for="" class="break_label_2">休憩２</label>
             <input type="time" name="new_break2_start"
-                @if($work_break->break2_start)
+                @if($work_break && $work_break->break2_start)
                     value="{{ \Carbon\Carbon::parse($work_break->break2_start)->format('H:i') }}"
                 @endif
                 {{ $disabled }}>
             <span>〜</span>
             <input type="time" name="new_break2_end"
-                @if($work_break->break2_end)
+                @if($work_break && $work_break->break2_end)
                     value="{{ \Carbon\Carbon::parse($work_break->break2_end)->format('H:i') }}"
                 @endif
                 {{ $disabled }}>
         </div>
         <div class="detail_reason">
             <label for="" class="note_label">備考</label>
-            <textarea class="reason_main" {{ $disabled }}>{{ old('reason') }}</textarea>
+            <textarea class="reason_main" {{ $disabled }}>{{ old('reason', optional($attendance->applications()->latest()->first())->reason) }}</textarea>
         </div>
 
         @if(!$hasPending)
