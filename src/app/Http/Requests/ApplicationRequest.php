@@ -41,6 +41,8 @@ class ApplicationRequest extends FormRequest
             $end = $this->input ('new_clock_out');
             $break1Start = $this->input('new_break1_start');
             $break1End = $this->input('new_break1_end');
+            $break2Start = $this->input('new_break2_start');
+            $break2End = $this->input('new_break2_end');
 
             if ($start && $end && strtotime($end) <= strtotime($start)) {
                 $validator->errors()->add('start_time', '出勤時間もしくは退勤時間が不適切な値です');

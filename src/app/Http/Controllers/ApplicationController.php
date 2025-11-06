@@ -34,7 +34,7 @@ class ApplicationController extends Controller
         return view('stamp_correction_request.list', compact('applications', 'tab'));
     }
 
-    public function store(Request $request, $attendanceId)
+    public function store(ApplicationRequest $request, $attendanceId)
     {
         $attendance = Attendance::find($attendanceId);
 

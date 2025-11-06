@@ -52,12 +52,6 @@
             @endforeach
         </tbody>
     </table>
-    <form action="{{ route('admin.attendance.export') }}" method="post" >
-        @csrf
-        <div class="button">
-            <a href="{{ route('admin.attendance.export') }}">CSV出力</a>
-        </div>
-    </form>
 </div>
 
 @endsection

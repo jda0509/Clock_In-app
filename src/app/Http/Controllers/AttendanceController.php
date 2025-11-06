@@ -134,35 +134,60 @@ class AttendanceController extends Controller
 
     public function exportCsv()
     {
-        $attendances = Attendance::with('workBreak', 'staff')->get();
+        $attendances = Attendance::with(['workBreak', 'staff','applications'])->get();
 
         $response = new StreamedResponse(function() use ($attendances) {
             $handle = fopen('php://output', 'w');
 
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
             fputcsv($handle, ['日付', '出勤時間', '退勤時間', '休憩時間', '合計', '備考']);
 
             foreach ($attendances as $attendance) {
                 $clockIn = $attendance->clock_in;
                 $clockOut = $attendance->clock_out;
 
-                $break = 0;
-                if ($attendance->workBreak) {
-                    $b1 = $this->diffInHours($attendance->workBreak->break1_start, $attendance->workBreak->break1_end);
-                    $b2 = $this->diffInHours($attendance->workBreak->break2_start, $attendance->workBreak->break2_end);
-                    $break = $b1 + $b2;
+                $breakMinutes = 0;
+                if ($attendance->workBreak && $attendance->workBreak->isNotEmpty()) {
+                    foreach ($attendance->workBreak as $breakRecord) {
+                        if ($breakRecord->break1_start && $breakRecord->break1_end) {
+                            $breakMinutes += Carbon::parse($breakRecord->break1_end)
+                                ->diffInMinutes(Carbon::parse($breakRecord->break1_start));
+                        }
+                        if ($breakRecord->break2_start && $breakRecord->break2_end) {
+                            $breakMinutes += Carbon::parse($breakRecord->break2_end)
+                                ->diffInMinutes(Carbon::parse($breakRecord->break2_start));
+                        }
+                    }
                 }
-                $breakMinutes = $break * 60;
-                $breakTime = sprintf('%02d:%02d', floor($breakMinutes / 60), $breakMinutes % 60);
 
-                $totalMinutes = Carbon::parse($clockIn)->diffInMinutes(Carbon::parse($clockOut)) - ($break * 60);
-                $workHours = sprintf('%02d:%02d', floor($totalMinutes / 60), $totalMinutes % 60);
+                $breakTime = $breakMinutes > 0
+                    ? sprintf('%02d:%02d', floor($breakMinutes / 60), $breakMinutes % 60)
+                    : '';
 
-                $note = optional($attendance->applications()->latest()->first())->reason ?? '';
+                if ($clockIn && $clockOut) {
+                    $totalMinutes = Carbon::parse($clockIn)->diffInMinutes(Carbon::parse($clockOut)) - $breakMinutes;
+                    if ($totalMinutes < 0) {
+                        $workHours = '';
+                    } else {
+                        $workHours = sprintf('%02d:%02d', floor($totalMinutes / 60), $totalMinutes % 60);
+                    }
+                } else {
+                    $workHours = '';
+                }
 
-                fputcsv($handle, [
-                    $attendance->staff->name,
-                    $clockIn,
-                    $clockOut,
+                $note = '';
+                if ($attendance->relationLoaded('applications')) {
+                    $latesApp = $attendance->applications->sortByDesc('created_at')->first();
+                    $note = $latestApp->reason ?? '';
+                } else {
+                    $note = optional($attendance->applications()->latest()->first())->reason ?? '';
+                }
+
+                fputcsv ($handle, [
+                    $attendance->staff->name ?? '',
+                    $attendance->work_date ?? '',
+                    $clockIn ?? '',
+                    $clockOut ?? '',
                     $breakTime,
                     $workHours,
                     $note,
@@ -171,6 +196,7 @@ class AttendanceController extends Controller
 
             fclose($handle);
         });
+
 
         $fileName = 'attendance_' . date('Ymd_His') . '.csv';
         $response->headers->set('Content-Type', 'text/csv');
