@@ -126,7 +126,7 @@ return [
     |
     */
 
-    'cookie' => Str::slug(env('APP_NAME', 'laravel'), '_'). '_' . (request()->is('admin/*') ? 'admin' : 'staff') . '_session',
+    'cookie' => Str::slug(env('APP_NAME', 'laravel'), '_').'_session',
 
     /*
     |--------------------------------------------------------------------------

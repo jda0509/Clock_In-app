@@ -1,0 +1,49 @@
+.header{
+    background-color: #000;
+    color: #fff;
+    width: 100%;
+    padding: 15px 40px;
+    box-sizing: border-box;
+}
+
+.header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    min-width: 960px;
+    margin: 0 auto;
+}
+
+.logo_img img{
+    height: 35px;
+    width: auto;
+    display: block;
+}
+
+.header__nav {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.header__nav a,
+.logout {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+main{
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}

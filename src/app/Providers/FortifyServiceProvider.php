@@ -27,7 +27,7 @@ class FortifyServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::registerView(function() {
@@ -40,6 +40,21 @@ class FortifyServiceProvider extends ServiceProvider
         });
         Fortify::loginView(function(){
             return view('auth.login');
+        });
+        Fortify::authenticateUsing(function (Request $request) {
+            $credentials = $loginRequest->only('email','password');
+
+            if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))){
+                return Auth::guard('admin')->user();
+            }
+
+            if (Auth::guard('staff')->attempt($credentials, $request->filled('remember'))) {
+                return Auth::guard('staff')->user();
+            }
+
+            throw ValidationException::withMessage([
+                'email' => __('auth.failed'),
+            ]);
         });
 
         RateLimiter::for('login', function (Request $request) {

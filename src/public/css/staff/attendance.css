@@ -1,0 +1,79 @@
+body {
+    background-color: #f5f5f5;
+}
+
+.attendance__main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 100px);
+    text-align: center;
+}
+
+.status {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    background-color: #C8C8C8;
+    color: #696969;
+    padding: 10px 20px;
+    border-radius: 50px;
+}
+
+.today_date {
+    margin-bottom: 30px;
+}
+
+#today {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+#clock {
+    font-size: 50px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.attendance__main form {
+    margin: 10px 0px;
+}
+
+.clock_in,.clock_out {
+    width: 160px;
+    padding: 12px 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    background-color: black;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+    border-radius: 15px;
+}
+
+.break {
+    background-color: #ffffff;
+    color: black;
+    border: none;
+    width: 160px;
+    padding: 12px 0;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 15px;
+}
+
+.attendance_now{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+.message{
+    font-size: 23px;
+    font-weight: bold;
+}

@@ -17,6 +17,10 @@ class ApplicationController extends Controller
         $tab = $request->query('tab', 'pending');
         $status = $tab === 'approved' ? 'approved' : 'pending' ;
 
+        $applications = Application::with(['staff', 'attendance'])
+            ->where('status','pending')
+            ->get();
+
         if (Auth::guard('admin')->check()) {
             $applications = Application::with(['staff', 'attendance'])
                 ->where('status', $status)
@@ -81,21 +85,27 @@ class ApplicationController extends Controller
 
         if (!$attendance) {
             $cleanId = str_replace('new-', '', $id);
-            $attendanceDate = Carbon::createFromFormat('Ymd', $cleanId);
-            $attendance = new Attendance([
-                'id' => $id,
-                'clock_in' => null,
-                'clock_out'=> null,
-                'work_date' => $attendanceDate,
-            ]);
-            $attendance->setRelation('staff', Auth::guard('staff')->user());
-        } else {
-            $attendanceDate = $attendance->work_date;
-        }
+                $dateStr = str_replace('new-', '', $id);
+                $attendanceDate = Carbon::createFromFormat('Ymd', $dateStr);
+                $attendance = new Attendance([
+                    'id' => $id,
+                    'clock_in' => null,
+                    'clock_out'=> null,
+                    'work_date' => $attendanceDate,
+                ]);
+                $attendance->setRelation('staff', Auth::guard('staff')->user());
+                $attendance->exists = false;
+            } else {
+                $attendanceDate = $attendance->work_date;
+                $attendance->exists = true;
+            }
 
-        $hasPending = $attendance->exists
-            ? $attendance->applications()->where('status', 'pending')->exists()
-            : false;
+        if ($attendance->exists) {
+            $latestApplication = $attendance->applications()->latest()->first();
+            $hasPending = $latestApplication && $latestApplication->status === 'pending';
+        } else {
+            $hasPending = false;
+        }
 
         $work_break = $attendance->exists
             ? $attendance->work_breaks()->latest()->first()
@@ -185,5 +195,24 @@ class ApplicationController extends Controller
 
         return redirect()
             ->route('admin.attendance.show', ['id' => $attendance->id]);
+    }
+
+    public function approveSubmit (Request $request,$id)
+    {
+        $application = Application::findOrFail($id);
+        $application->status = 'approved';
+        $application->save();
+
+        $attendance = $application->attendance;
+        if ($attendance) {
+            $attendance->clock_in = $application->new_clock_in ?? $attendance->clock_in;
+            $attendance->clock_out = $application->new_clock_out ?? $attendance->clock_out;
+            $attendance->save();
+        }
+
+        $application->status = 'approved';
+        $application->save();
+
+        return redirect()->route('admin.application.list', ['tab' => 'pending']);
     }
 }

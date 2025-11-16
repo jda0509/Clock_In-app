@@ -140,22 +140,44 @@ class AttendanceController extends Controller
             $handle = fopen('php://output', 'w');
 
             fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
-            fputcsv($handle, ['日付', '出勤時間', '退勤時間', '休憩時間', '合計', '備考']);
+            fputcsv($handle, ['スタッフ名','日付', '出勤時間', '退勤時間', '休憩時間', '合計', '備考']);
+
+            $safeParse = function($value) {
+                if (!$value || trim($value) === '') return null;
+                if (preg_match('/^d{1,2}:\d{2}$/',$value)) {
+                    try {
+                        return Carbon::createFromFormat('H:i', $value);
+                    } catch (\Throwable $e) {
+                        return null;
+                    }
+                }
+                try {
+                    return Carbon::parse($value);
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            };
 
             foreach ($attendances as $attendance) {
-                $clockIn = $attendance->clock_in;
-                $clockOut = $attendance->clock_out;
+                $clockInRaw = $attendance->clock_in;
+                $clockOutRaw = $attendance->clock_out;
 
                 $breakMinutes = 0;
                 if ($attendance->workBreak && $attendance->workBreak->isNotEmpty()) {
                     foreach ($attendance->workBreak as $breakRecord) {
-                        if ($breakRecord->break1_start && $breakRecord->break1_end) {
-                            $breakMinutes += Carbon::parse($breakRecord->break1_end)
-                                ->diffInMinutes(Carbon::parse($breakRecord->break1_start));
+                        if (!empty($breakRecord->break1_start) && !empty($breakRecord->break1_end)) {
+                            $b1Start += $safeParse($breakRecord->break1_start);
+                            $b1End = $safeParse($breakRecord->break1_end);
+                            if ($b1Start && $b1End) {
+                                $breakMinutes += $b1End->diffInMinutes($b1Start);
+                            }
                         }
-                        if ($breakRecord->break2_start && $breakRecord->break2_end) {
-                            $breakMinutes += Carbon::parse($breakRecord->break2_end)
-                                ->diffInMinutes(Carbon::parse($breakRecord->break2_start));
+                        if (!empty($breakRecord->break2_start) && !empty($breakRecord->break2_end)) {
+                            $b2Start += $safeParse($breakRecord->break2_start);
+                            $b2End = $safeParse($breakRecord->break2_end);
+                            if ($b2Start && $b2End) {
+                                $breakMinutes += $b1End->diffInMinutes($b2Start);
+                            }
                         }
                     }
                 }
@@ -164,15 +186,30 @@ class AttendanceController extends Controller
                     ? sprintf('%02d:%02d', floor($breakMinutes / 60), $breakMinutes % 60)
                     : '';
 
+                $clockIn = $safeParse($clockInRaw);
+                $clockOut = $safeParse($clockOutRaw);
+
                 if ($clockIn && $clockOut) {
-                    $totalMinutes = Carbon::parse($clockIn)->diffInMinutes(Carbon::parse($clockOut)) - $breakMinutes;
-                    if ($totalMinutes < 0) {
+                    try {
+                        $totalMinutes = $clockOut->diffInMinutes($clockIN) - $breakMinutes;
+                        if ($totalMinutes < 0) {
+                            $workHours = '';
+                        } else {
+                            $workHours = sprintf('%02d:%02d', floor($totalMinutes / 60), $totalMinutes % 60);
+                        }
+                    } catch (\Throwable $e) {
                         $workHours = '';
-                    } else {
-                        $workHours = sprintf('%02d:%02d', floor($totalMinutes / 60), $totalMinutes % 60);
                     }
                 } else {
                     $workHours = '';
+                }
+
+                $note = '';
+                if ($attendance->relationLoaded('application')) {
+                    $latestApp = $attendance->applications->sortByDesc('created_at')->first();
+                    $note = $latestApp->reason ?? '';
+                } else {
+                    $note = optional($attendance->applications()->latest()->first())->reason ?? '';
                 }
 
                 $note = '';
@@ -256,15 +293,23 @@ class AttendanceController extends Controller
 
     }
 
-    public function adminShow($id)
+    public function adminShow(Request $request,$id)
     {
         $attendance = Attendance::with('staff', 'work_breaks', 'applications')->find($id);
 
         if (!$attendance) {
             $cleanId = str_replace('new-', '', $id);
-            $attendanceDate = Carbon::createFromFormat('Ymd', $cleanId);
+            try {
+                $attendanceDate = Carbon::createFromFormat('Ymd', $cleanId);
+            } catch (\Exception $e) {
+                try {
+                    $attendanceDate = Carbon::createFromFormat('Y-m-d', $cleanId);
+                } catch (\Exception $e2) {
+                    $attendanceDate = now();
+                }
+            }
 
-            $staff_id = request()->query('staff_id');
+            $staff_id = $request->query('staff_id');
 
             $staff = Staff::findOrFail($staff_id);
 

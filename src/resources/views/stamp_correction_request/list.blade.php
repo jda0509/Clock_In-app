@@ -47,7 +47,7 @@
                                 @endphp
 
                                 @if (Auth::guard('admin')->check())
-                                    <a href="{{ route('admin.attendance.show', ['id' => $application->attendance_id]) }}">
+                                    <a href="{{ route('admin.approve', ['id' => $application->attendance_id]) }}">
                                         詳細
                                     </a>
                                 @elseif (Auth::guard('staff')->check())

@@ -1,0 +1,145 @@
+body {
+    background-color: #f5f5f5;
+}
+
+.main_content {
+    max-width: 1000px;
+    width: 100%;
+    margin: 50px auto;
+    padding: 0px;
+    box-sizing: border-box;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.page_title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.page_title img {
+    height: 30px;
+    width: auto;
+}
+
+.detail_main {
+    max-width: 900px;
+    width: 90%;
+    margin: 40px auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.detail_name,
+.detail_date,
+.detail_clock,
+.detail_break,
+.detail_break2,
+.detail_reason {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 5px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 30px;
+}
+
+.detail_name label,
+.detail_date label,
+.detail_clock label,
+.detail_break label,
+.detail_break2 label,
+.detail_reason label {
+    width: 100px;
+}
+
+.name_label,
+.date_label,
+.clock_label,
+.break_label_1,
+.break_label_2,
+.note_label {
+    width: 140px;
+    flex-shrink: 0;
+    margin-right: 60px;
+}
+
+.staff_name {
+    width: 100%;
+    white-space: nowrap;
+}
+
+.detail_name div,
+.detail_date div,
+.detail_reason
+textarea {
+    width: 100px;
+    font-weight: bold;
+    flex: 1;
+}
+
+.detail_break span,
+.detail_break2 span,
+.detail_clock span {
+    flex: 0 0 auto;
+    align-self: center;
+    font-weight: bold;
+    margin: 0 8px;
+}
+
+input[type="time"],
+textarea {
+    width: 48%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    padding:10px;
+    box-sizing: border-box;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
+
+input[type="time"]::before {
+    content: ""
+}
+
+input[type="time"]::moz-placeholder{
+    opacity: 0;
+}
+
+textarea.reason_main {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.detail_button {
+    text-align: right;
+}
+
+.button_main {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.detail_message {
+    color: red;
+    font-size: 14px;
+    text-align: right;
+}
+
+@media (max-width: 1200px) {
+    .detail_main {
+        max-width: 90%;
+    }
+}

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\Staff;
+use App\Models\Application;
 
 class AdminController extends Controller
 {
@@ -33,5 +34,19 @@ class AdminController extends Controller
         $staffs = Staff::orderBy('id', 'asc')->get();
 
         return view('admin.staff.list', compact('staffs'));
+    }
+
+    public function approve($id)
+    {
+        $application = Application::with(['attendance.work_breaks', 'staff'])
+            ->where('attendance_id', $id)
+            ->first();
+
+        $attendance = $application->attendance;
+        $work_break = $attendance
+            ? $attendance->work_breaks()->latest()->first()
+            : null;
+
+        return view('stamp_correction_request.approve', compact('application','attendance','work_break'));
     }
 }

@@ -17,30 +17,29 @@
         </div>
         <div class="detail_clock">
             <label for="" class="clock_label">出勤・退勤</label>
-            <span>{{ $application->new_clock_in ?? '-' }}</span> 〜
-            <span>{{ $application->new_clock_out ?? '-' }}</span>
+            <span>{{ $application->new_clock_in ? \Carbon\Carbon::parse($application->new_clock_in)->format('H:i') : '-' }}</span> 〜
+            <span>{{ $application->new_clock_out ? \Carbon\Carbon::parse($application->new_clock_out)->format('H:i') : '-' }}</span>
         </div>
         <div class="detail_break">
             <label for="" class="break_label_1">休憩</label>
-            <span>{{ $application->new_break1_start ?? '-' }}</span> 〜
-            <span>{{ $application->new_break2_end ?? '-' }}</span>
+            <span>{{ $application->new_break1_start ? \Carbon\Carbon::parse($application->new_break1_start)->format('H:i') : '-' }}</span> 〜
+            <span>{{ $application->new_break1_end ? \Carbon\Carbon::parse($application->new_break1_end)->format('H:i') : '-' }}</span>
         </div>
         <div class="detail_break2">
             <label for="" class="break_label_2">休憩２</label>
-            <input type="time" name="new_break2_start" value="{{ old('new_break2_start', $work_break->break2_start }}">
-            <input type="time" name="new_break2_end" value="{{ old('new_break2_end', $work_break->break2_end) }}">
+            <span>{{ $application->new_break2_start ? \Carbon\Carbon::parse($application->new_break2_start)->format('H:i') : '-' }}</span> 〜
+            <span>{{ $application->new_break2_end ? \Carbon\Carbon::parse($application->new_break2_end)->format('H:i') : '-' }}</span>
         </div>
         <div class="detail_reason">
             <label for="" class="note_label">備考</label>
             <p>{{ $application->reason ?? '-' }}</p>
         </div>
 
-    <form action="" method="post">
+    <form action="{{ route('admin.approve.submit', $application->id) }}" method="post">
         @csrf
-        @method('PATCH')
         <input type="hidden" name="status" value="approved">
         <div class="detail_button">
-            <button class="button_main" type="submit">修正</button>
+            <button class="button_main" type="submit">承認</button>
         </div>
     </form>
 </div>

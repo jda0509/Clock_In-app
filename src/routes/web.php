@@ -72,9 +72,11 @@ Route::prefix('admin')->middleware('auth:admin')->group(function(){
         ->name('admin.staff.list');
     Route::get('/stamp_correction_request/list', [ApplicationController::class, 'index'])
         ->name('admin.application.list');
+    Route::get('stamp_correction_request/approve/{id}', [AdminController::class, 'approve'])
+        ->name('admin.approve');
+    Route::post('stamp_correction_request/approve/{id}', [ApplicationController::class, 'approveSubmit'])
+        ->name('admin.approve.submit');
 });
-
-
 
 
 Route::get('/dashboard', function() {

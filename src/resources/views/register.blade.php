@@ -22,16 +22,17 @@
                     @enderror
                 </div>
             </div>
-            <div class="login-form__email">
+            <div class="register-form__email">
                 <div class="email__label">メールアドレス</div>
                 <input class="register__email" type="email" name="email" value="{{ old('email') }}" />
                 <div class="error">
                     @error('email')
                     {{ $message }}
                     @enderror
+
                 </div>
             </div>
-            <div class="login-form__password">
+            <div class="register-form__password">
                 <div class="password__label">パスワード</div>
                 <input class="password" type="password" name="password" value="" />
                 <div class="error">
@@ -40,9 +41,9 @@
                     @enderror
                 </div>
             </div>
-            <div class="login-form__password_confirmation">
+            <div class="register-form__password_confirmation">
                 <div class="password__label">確認用パスワード</div>
-                <input class="password_confirmation" type="password" name="password_confirmation" value="" />
+                <input class="password" type="password" name="password_confirmation" value="" />
                 <div class="error">
                     @error('password_confirmation')
                     {{ $message }}

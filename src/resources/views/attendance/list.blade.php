@@ -1,7 +1,7 @@
 @extends('layouts.staff')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/attendance/detail.css') }}">
+<link rel="stylesheet" href="{{ asset('css/attendance/list.css') }}">
 @endsection
 
 @section('content')
@@ -12,17 +12,20 @@
                     'Wed' => '(水)', 'Thu' => '(木)', 'Fri' => '(金)', 'Sat' => '(土)'];
 @endphp
 <div class="main_content">
-    <h2 class="page_title">勤怠一覧</h2>
+    <div class="page_title">
+        <img src="{{ asset('storage/Line 2.png')}}" alt="">
+        <h2 class="title">勤怠一覧</h2>
+    </div>
     <div class="month-navigation">
         <a href="{{ route('attendance.list', ['month' => $previousMonth]) }}" class="previousMonth">
-            <img src="" alt="←">
+            <img src="{{ asset('storage/left.png')}}" alt="←">
             前月
         </a>
         <span class="thisMonth">
-            <img src="" alt="カレンダー">{{ $targetMonth }}
+            <img src="{{ asset('storage/calendar.png') }}" alt="カレンダー">{{ $targetMonth }}
         </span>
         <a href="{{ route('attendance.list', ['month' => $nextMonth ]) }}" class="nextMonth">
-            翌月<img src="" alt="→">
+            翌月<img src="{{ asset('storage/right.png') }}" alt="→">
         </a>
     </div>
     <table class="table">

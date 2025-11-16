@@ -21,11 +21,6 @@ class RedirectIfAuthenticated
     {
         $guards = empty($guards) ? [null] : $guards;
 
-        dd([
-            'admin_guard_logged_in?' => Auth::guard('admin')->check(),
-            'staff_guard_logged_in?' => Auth::guard('staff')->check(),
-        ]);
-
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 logger('RedirectIfAuthenticated fired', ['guard' => $guard]);

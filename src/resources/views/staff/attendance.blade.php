@@ -1,7 +1,7 @@
 @extends('layouts.staff')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/attendance.css') }}">
+<link rel="stylesheet" href="{{ asset('css/staff/attendance.css') }}">
 @endsection
 
 @section('content')
@@ -24,14 +24,16 @@
             <p id="today"></p>
             <h2 id="clock"></h2>
         </div>
-        <form action="{{ route('attendance.end') }}" method="post">
-            @csrf
-            <button class="clock_out" type="submit">退勤</button>
-        </form>
-        <form action="{{ route('attendance.break.start') }}" method="post">
-            @csrf
-            <button class="break" type="submit">休憩入</button>
-        </form>
+        <div class="attendance_now">
+            <form action="{{ route('attendance.end') }}" method="post">
+                @csrf
+                <button class="clock_out" type="submit">退勤</button>
+            </form>
+            <form action="{{ route('attendance.break.start') }}" method="post">
+                @csrf
+                <button class="break" type="submit">休憩入</button>
+            </form>
+        </div>
 
     @elseif ($status === 'on_break')
         <p class="status">休憩中</p>

@@ -30,8 +30,6 @@ class LoginController extends Controller
             return redirect()->route('admin.attendance.list');
         }
 
-        dd($credentials);
-
         return back();
     }
 

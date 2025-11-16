@@ -1,0 +1,21 @@
+.header{
+    background-color: #000;
+    color: #fff;
+    width: 100%;
+    padding: 15px 40px;
+    box-sizing: border-box;
+}
+
+.logo_img img{
+    max-height: 35px;
+    height: auto;
+    width: auto;
+    display: block;
+}
+
+main{
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}

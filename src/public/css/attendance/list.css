@@ -1,0 +1,85 @@
+body {
+    background-color: #f5f5f5;
+}
+
+.main_content {
+    max-width: 1000px;
+    width: 100%;
+    margin: 50px auto;
+    padding: 0px;
+    box-sizing: border-box;
+
+}
+
+.page_title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.page_title img {
+    height: 30px;
+    width: auto;
+}
+
+.month-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: white;
+}
+
+.month-navigation a,
+.month-navigation span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px;
+    text-decoration: none;
+    color: black;
+}
+
+.thisMonth {
+    font-weight: bold;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    background-color: white;
+    padding: 8px;
+    text-align: center;
+}
+
+.table th {
+    font-weight: normal;
+}
+
+.table th.title,
+.table td.title {
+    border-bottom: 5px solid #f5f5f5;
+}
+
+.table td {
+    border: 3px solid #f5f5f5;
+    border-left: none;
+    border-right: none;
+}
+
+.month-navigation img {
+    width: 20px;
+    height: auto;
+}
+
+.btn {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
